@@ -1,0 +1,120 @@
+{
+  "builder_name": "legal_contracts",
+  "citation": "@InProceedings{huggingface:dataset,\ntitle = {A great new dataset},\nauthor={huggingface, Inc.\n},\nyear={2020}\n}\n",
+  "config_name": "default",
+  "dataset_name": "legal_contracts",
+  "dataset_size": 35704535641,
+  "description": "This new dataset is designed to solve this great NLP task and is crafted with a lot of care.\n",
+  "download_checksums": {
+    "https://huggingface.co/datasets/albertvillanova/legal_contracts/resolve/main/contracts.tar.gz": {
+      "num_bytes": 9250100147,
+      "checksum": null
+    }
+  },
+  "download_size": 9250100147,
+  "features": {
+    "title": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "date": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "party1": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "party2": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "https://drive.google.com/file/d/1of37X0hAhECQ3BN_004D8gm6V88tgZaB/view?usp=sharing",
+  "license": "",
+  "size_in_bytes": 44954635788,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 35704535641,
+      "num_examples": 650833,
+      "shard_lengths": [
+        12000,
+        12000,
+        11000,
+        11000,
+        12000,
+        11000,
+        11000,
+        10000,
+        10000,
+        11000,
+        10000,
+        11000,
+        11000,
+        10000,
+        10000,
+        12000,
+        12000,
+        12000,
+        13000,
+        12000,
+        12000,
+        12000,
+        12000,
+        10000,
+        10000,
+        10000,
+        10000,
+        9000,
+        10000,
+        9000,
+        9000,
+        10000,
+        10000,
+        9000,
+        10000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        9000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        8000,
+        2833
+      ],
+      "dataset_name": "legal_contracts"
+    }
+  },
+  "version": {
+    "version_str": "1.0.0",
+    "major": 1,
+    "minor": 0,
+    "patch": 0
+  }
+}
