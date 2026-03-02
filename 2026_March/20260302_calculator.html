@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>파스텔 계산기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-color: #fdf6ff;
+      --panel-color: #ffffff;
+      --accent-color: #f6b4c9;
+      --accent-color-2: #a7d8ff;
+      --accent-color-3: #b7f0d8;
+      --text-color: #444444;
+      --button-text: #444444;
+      --shadow-color: rgba(0, 0, 0, 0.06);
+      --display-bg: #fff7ff;
+    }
+
+    body.dark {
+      --bg-color: #171821;
+      --panel-color: #232437;
+      --accent-color: #ff9bbf;
+      --accent-color-2: #7bc4ff;
+      --accent-color-3: #7de3b8;
+      --text-color: #f5f5ff;
+      --button-text: #f5f5ff;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+      --display-bg: #1f2030;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top left, #ffe7f0 0, #fdf6ff 40%, #f5fbff 80%, var(--bg-color) 100%);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    .calculator-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      z-index: 2;
+    }
+
+    .calculator {
+      background: var(--panel-color);
+      border-radius: 24px;
+      padding: 20px 20px 24px;
+      box-shadow: 0 18px 40px var(--shadow-color);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .calc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .calc-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .calc-title span.icon {
+      font-size: 1.2rem;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      z-index: 5;
+    }
+
+    .theme-toggle button {
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 999px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #555;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(10px);
+      transition: background 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+    }
+
+    body.dark .theme-toggle button {
+      background: rgba(27, 28, 40, 0.9);
+      color: #f5f5ff;
+    }
+
+    .theme-toggle button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .theme-toggle button span.icon {
+      font-size: 1rem;
+    }
+
+    .display-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .display {
+      width: 100%;
+      border-radius: 18px;
+      padding: 16px 16px 10px;
+      background: var(--display-bg);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+      overflow: hidden;
+    }
+
+    .display-expression {
+      min-height: 24px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+      text-align: right;
+      word-wrap: break-word;
+    }
+
+    .display-result {
+      min-height: 36px;
+      font-size: 1.6rem;
+      font-weight: 600;
+      text-align: right;
+      word-wrap: break-word;
+    }
+
+    .fireworks {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .fireworks.show {
+      opacity: 1;
+      animation: floatFireworks 1.4s ease-out forwards;
+    }
+
+    .fireworks span {
+      font-size: 1.6rem;
+      margin-left: 6px;
+    }
+
+    @keyframes floatFireworks {
+      0% {
+        transform: translateY(10px) scale(0.8);
+        opacity: 0;
+      }
+      30% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-12px) scale(1.05);
+        opacity: 0;
+      }
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 0;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--button-text);
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 20px var(--shadow-color);
+      transition: background 0.2s ease, transform 0.08s ease, box-shadow 0.2s ease;
+    }
+
+    body.dark .btn {
+      background: #2d2f45;
+    }
+
+    .btn.operator {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-color-2));
+      color: #ffffff;
+    }
+
+    .btn.equals {
+      background: linear-gradient(135deg, var(--accent-color-2), var(--accent-color-3));
+      color: #ffffff;
+      grid-column: span 2;
+    }
+
+    .btn.zero {
+      grid-column: span 2;
+    }
+
+    .btn.function {
+      background: rgba(255, 255, 255, 0.9);
+      color: #888;
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 5px 12px var(--shadow-color);
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* 고양이 배경 */
+    .dancing-cats {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .cat {
+      position: absolute;
+      font-size: clamp(32px, 5vw, 40px);
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+      animation: dance 2.2s infinite ease-in-out;
+    }
+
+    .cat:nth-child(1) {
+      left: 8%;
+      bottom: 10%;
+      animation-delay: 0s;
+    }
+
+    .cat:nth-child(2) {
+      left: 22%;
+      bottom: 18%;
+      animation-delay: 0.25s;
+    }
+
+    .cat:nth-child(3) {
+      right: 18%;
+      bottom: 14%;
+      animation-delay: 0.5s;
+    }
+
+    .cat:nth-child(4) {
+      right: 4%;
+      bottom: 8%;
+      animation-delay: 0.75s;
+    }
+
+    .cat:nth-child(5) {
+      left: 45%;
+      bottom: 5%;
+      animation-delay: 1s;
+    }
+
+    @keyframes dance {
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-10px) rotate(-3deg);
+      }
+      50% {
+        transform: translateY(0) rotate(3deg) scale(1.03);
+      }
+      75% {
+        transform: translateY(-7px) rotate(-2deg);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .calculator-wrapper {
+        padding: 16px;
+      }
+
+      .calculator {
+        padding: 18px 16px 22px;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+  <div class="dancing-cats" aria-hidden="true">
+    <div class="cat">🐱🎵</div>
+    <div class="cat">😺💃</div>
+    <div class="cat">🐈🎶</div>
+    <div class="cat">😸🕺</div>
+    <div class="cat">🐱✨</div>
+  </div>
+
+  <div class="calculator-wrapper">
+    <div class="theme-toggle">
+      <button id="themeToggle" type="button">
+        <span class="icon" id="themeIcon">🌙</span>
+        <span id="themeLabel">다크 모드</span>
+      </button>
+    </div>
+
+    <div class="calculator" aria-label="파스텔 계산기">
+      <div class="calc-header">
+        <div class="calc-title">
+          <span class="icon">🎀</span>
+          <span>파스텔 계산기</span>
+        </div>
+      </div>
+
+      <div class="display-wrapper">
+        <div class="display">
+          <div id="expression" class="display-expression"></div>
+          <div id="result" class="display-result">0</div>
+        </div>
+        <div id="fireworks" class="fireworks" aria-hidden="true">
+          <span>🎆🎇</span>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn function" data-action="clear">AC</button>
+        <button class="btn function" data-action="delete">⌫</button>
+        <button class="btn function" data-value="%">%</button>
+        <button class="btn operator" data-value="/">÷</button>
+
+        <button class="btn" data-value="7">7</button>
+        <button class="btn" data-value="8">8</button>
+        <button class="btn" data-value="9">9</button>
+        <button class="btn operator" data-value="*">×</button>
+
+        <button class="btn" data-value="4">4</button>
+        <button class="btn" data-value="5">5</button>
+        <button class="btn" data-value="6">6</button>
+        <button class="btn operator" data-value="-">−</button>
+
+        <button class="btn" data-value="1">1</button>
+        <button class="btn" data-value="2">2</button>
+        <button class="btn" data-value="3">3</button>
+        <button class="btn operator" data-value="+">+</button>
+
+        <button class="btn zero" data-value="0">0</button>
+        <button class="btn" data-value=".">.</button>
+        <button class="btn equals" data-action="equals">=</button>
+      </div>
+
+      <div class="hint">
+        100을 넘는 결과가 나오면 <strong>🎆 폭죽</strong>이 나타나요!
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const body = document.body;
+      const expressionEl = document.getElementById("expression");
+      const resultEl = document.getElementById("result");
+      const buttons = document.querySelectorAll(".btn");
+      const fireworksEl = document.getElementById("fireworks");
+      const themeToggleBtn = document.getElementById("themeToggle");
+      const themeIcon = document.getElementById("themeIcon");
+      const themeLabel = document.getElementById("themeLabel");
+
+      let expression = "";
+
+      function updateDisplay() {
+        expressionEl.textContent = expression;
+      }
+
+      function clearAll() {
+        expression = "";
+        resultEl.textContent = "0";
+        updateDisplay();
+      }
+
+      function deleteLast() {
+        expression = expression.slice(0, -1);
+        updateDisplay();
+      }
+
+      function showFireworks() {
+        fireworksEl.classList.remove("show");
+        // 강제로 리플로우를 발생시켜 애니메이션 재시작
+        void fireworksEl.offsetWidth;
+        fireworksEl.classList.add("show");
+      }
+
+      function calculate() {
+        if (!expression.trim()) return;
+        let formatted = expression.replace(/÷/g, "/").replace(/×/g, "*");
+        try {
+          // 간단한 숫자/연산자만 허용
+          if (!/^[\d.+\-*/%() ]+$/.test(formatted)) {
+            throw new Error("Invalid expression");
+          }
+          let value = Function("return " + formatted)();
+          if (typeof value === "number" && !Number.isNaN(value)) {
+            if (!Number.isFinite(value)) {
+              throw new Error("Invalid result");
+            }
+            // 소수점 자리 제한
+            const displayValue =
+              Math.round((value + Number.EPSILON) * 1000000000) / 1000000000;
+            resultEl.textContent = displayValue;
+
+            if (value > 100) {
+              showFireworks();
+            }
+          } else {
+            throw new Error("Invalid result");
+          }
+        } catch (e) {
+          resultEl.textContent = "Error";
+        }
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const action = btn.getAttribute("data-action");
+          const value = btn.getAttribute("data-value");
+
+          if (action === "clear") {
+            clearAll();
+            return;
+          }
+
+          if (action === "delete") {
+            deleteLast();
+            return;
+          }
+
+          if (action === "equals") {
+            calculate();
+            return;
+          }
+
+          if (value) {
+            expression += value;
+            updateDisplay();
+          }
+        });
+      });
+
+      // Enter, Backspace, Delete, 숫자/연산자 키보드 입력 지원
+      document.addEventListener("keydown", (e) => {
+        const key = e.key;
+        if ((key >= "0" && key <= "9") || "+-*/.%().".includes(key)) {
+          expression += key;
+          updateDisplay();
+        } else if (key === "Enter" || key === "=") {
+          e.preventDefault();
+          calculate();
+        } else if (key === "Backspace") {
+          deleteLast();
+        } else if (key === "Escape") {
+          clearAll();
+        }
+      });
+
+      function applyTheme(theme) {
+        if (theme === "dark") {
+          body.classList.add("dark");
+          body.classList.remove("light");
+          themeIcon.textContent = "☀️";
+          themeLabel.textContent = "라이트 모드";
+        } else {
+          body.classList.add("light");
+          body.classList.remove("dark");
+          themeIcon.textContent = "🌙";
+          themeLabel.textContent = "다크 모드";
+        }
+      }
+
+      function toggleTheme() {
+        const isDark = body.classList.contains("dark");
+        const newTheme = isDark ? "light" : "dark";
+        applyTheme(newTheme);
+        try {
+          localStorage.setItem("calc-theme", newTheme);
+        } catch (e) {}
+      }
+
+      themeToggleBtn.addEventListener("click", toggleTheme);
+
+      // 저장된 테마 불러오기
+      try {
+        const savedTheme = localStorage.getItem("calc-theme");
+        if (savedTheme === "dark" || savedTheme === "light") {
+          applyTheme(savedTheme);
+        } else {
+          applyTheme("light");
+        }
+      } catch (e) {
+        applyTheme("light");
+      }
+    })();
+  </script>
+</body>
+</html>
